@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
-import {EditIcon, CheckIcon, DeleteIcon} from './Icons';
+import { EditIcon, CheckIcon, DeleteIcon } from './Icons';
 
 interface TableRow {
     id: number;
@@ -16,11 +16,8 @@ const App: React.FC = () => {
     const [rowToDelete, setRowToDelete] = useState<number | null>(null);
     const [maxOrderNumber, setMaxOrderNumber] = useState<number>(1);
 
-    useEffect(() => {
-        generateTable();
-    }, []);
-
-    const generateTable = async () => {
+    // Мемоизация функции generateTable
+    const generateTable = useCallback(async () => {
         const columns = await generateColumns();
         const rows = await generateRows(columns.length);
         setColumns(columns);
@@ -28,13 +25,18 @@ const App: React.FC = () => {
         const initialOrderNames = rows.map((_, index) => `Заказ ${index + 1}`);
         setOrderNames(initialOrderNames);
         setMaxOrderNumber(rows.length ? rows.length : 1);
-    };
+    }, []);
+
+    // Вызов функции generateTable при монтировании компонента
+    useEffect(() => {
+        generateTable();
+    }, [generateTable]);
 
     const generateColumns = (): Promise<number[]> => {
         return new Promise((resolve) => {
             setTimeout(() => {
                 const colCount = Math.floor(Math.random() * 99) + 2;
-                resolve(Array.from({length: colCount}, (_, i) => i + 1));
+                resolve(Array.from({ length: colCount }, (_, i) => i + 1));
             }, 1500);
         });
     };
@@ -43,9 +45,9 @@ const App: React.FC = () => {
         return new Promise((resolve) => {
             setTimeout(() => {
                 const rowCount = Math.floor(Math.random() * 99) + 2;
-                const rows = Array.from({length: rowCount}, (_, rowIndex) => ({
+                const rows = Array.from({ length: rowCount }, (_, rowIndex) => ({
                     id: rowIndex,
-                    cells: Array.from({length: colCount}, () => Math.random() >= 0.5),
+                    cells: Array.from({ length: colCount }, () => Math.random() >= 0.5),
                 }));
                 resolve(rows);
             }, 1500);
@@ -55,7 +57,7 @@ const App: React.FC = () => {
     const addRow = () => {
         const newRow = {
             id: rows.length,
-            cells: Array.from({length: columns.length}, () => Math.random() >= 0.5),
+            cells: Array.from({ length: columns.length }, () => Math.random() >= 0.5),
         };
         setRows([...rows, newRow]);
         setOrderNames([...orderNames, `Заказ ${maxOrderNumber + 1}`]);
@@ -81,7 +83,7 @@ const App: React.FC = () => {
     const deleteRow = () => {
         if (rowToDelete !== null) {
             const deletedRow = rows[rowToDelete];
-            const newRows = rows.filter(row => row.id !== rowToDelete).map((row, index) => ({...row, id: index}));
+            const newRows = rows.filter(row => row.id !== rowToDelete).map((row, index) => ({ ...row, id: index }));
             const newOrderNames = orderNames.filter((_, index) => index !== rowToDelete);
 
             setRows(newRows);
@@ -112,7 +114,7 @@ const App: React.FC = () => {
     };
 
     const toggleEditing = (rowIndex: number) => {
-        setIsEditing(prev => ({...prev, [rowIndex]: !prev[rowIndex]}));
+        setIsEditing(prev => ({ ...prev, [rowIndex]: !prev[rowIndex] }));
     };
 
     return (
@@ -156,7 +158,7 @@ const App: React.FC = () => {
                                         cursor: 'pointer',
                                     }}
                                 >
-                                    {isEditing[row.id] ? <CheckIcon/> : <EditIcon/>}
+                                    {isEditing[row.id] ? <CheckIcon /> : <EditIcon />}
                                 </button>
                                 <button
                                     onClick={() => confirmDeleteRow(row.id)}
@@ -166,7 +168,7 @@ const App: React.FC = () => {
                                         cursor: 'pointer',
                                     }}
                                 >
-                                    <DeleteIcon/>
+                                    <DeleteIcon />
                                 </button>
                             </td>
                         </tr>
@@ -174,7 +176,6 @@ const App: React.FC = () => {
                     </tbody>
                 </table>
             </div>
-
 
             {showModal && (
                 <div className="modal">
