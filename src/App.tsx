@@ -35,7 +35,7 @@ const App: React.FC = () => {
     const generateColumns = (): Promise<number[]> => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                const colCount = Math.floor(Math.random() * 99) + 2;
+                const colCount = Math.floor(Math.random() * 100) + 2;
                 resolve(Array.from({ length: colCount }, (_, i) => i + 1));
             }, 1500);
         });
@@ -44,7 +44,7 @@ const App: React.FC = () => {
     const generateRows = (colCount: number): Promise<TableRow[]> => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                const rowCount = Math.floor(Math.random() * 99) + 2;
+                const rowCount = Math.floor(Math.random() * 100) + 2;
                 const rows = Array.from({ length: rowCount }, (_, rowIndex) => ({
                     id: rowIndex,
                     cells: Array.from({ length: colCount }, () => Math.random() >= 0.5),
